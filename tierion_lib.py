@@ -1,9 +1,10 @@
 import requests
 import json
 # import TierionCaller
+import sys, getopt
+
 import hashlib
 from time import sleep
-from merkletools import MerkleTools
 
 class TierionHash:
 
@@ -35,12 +36,14 @@ class TierionHash:
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
-            print(id_receipt)
-            receipt=requests.get('https://hashapi.tierion.com/v1/receipts/'+id_receipt,headers=headers)
-            return receipt.json()['receipt']
+            url='https://hashapi.tierion.com/v1/receipts/'+id_receipt
+            receipt=requests.get(url,headers=headers)
+            return receipt.json()
         except Exception as e:
             print('No connection. Got an error code: '+repr(e))
             raise e
+
+
     def getAllBlockSubscriptions(self):
         try:
             data=self.HashAuth.json()
@@ -90,3 +93,21 @@ class TierionHash:
         except Exception as e:
             print('No connection. Got an error code: '+repr(e))
             raise e
+
+
+    def main(self):
+        print(self.HashAuth.json())
+        print(self.hashAuthEndpoint)
+        self.refresh()
+        print(self.HashAuth.json())
+        reciept=self.submitHashItem('test')
+        print(reciept)
+        itemReciept=self.getReceipt(reciept)
+        print(itemReciept)
+
+
+if __name__ == "__main__":
+    print(sys.argv[1])
+    print(sys.argv[2])
+    test = TierionHash(sys.argv[1],sys.argv[2])
+    test.main()

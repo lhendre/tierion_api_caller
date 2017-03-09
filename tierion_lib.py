@@ -19,6 +19,7 @@ class TierionHash:
 
     def submitHashItem(self, item):
         try:
+            self.refresh()
             hashedItem= hashlib.sha256(item.encode('utf-8')).hexdigest()
             data=self.HashAuth.json()
             token=data['access_token']
@@ -33,6 +34,7 @@ class TierionHash:
 
     def getReceipt(self, id_receipt):
         try:
+            self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -46,6 +48,7 @@ class TierionHash:
 
     def getAllBlockSubscriptions(self):
         try:
+            self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -56,6 +59,7 @@ class TierionHash:
 
     def getBlockSubscription(self, id):
         try:
+            self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -66,6 +70,7 @@ class TierionHash:
 
     def createBlockSubscription(self,callback,newLabel):
         try:
+            self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -76,6 +81,7 @@ class TierionHash:
 
     def updateBlockSubscription(self,id,callback,newLabel):
         try:
+            self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -86,6 +92,7 @@ class TierionHash:
 
     def deleteBlockSubscription(self,id,callback,newLabel):
         try:
+            self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}

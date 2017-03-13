@@ -2,6 +2,7 @@ import requests
 import json
 # import TierionCaller
 import sys, getopt
+import datetime
 
 import hashlib
 from time import sleep
@@ -11,15 +12,19 @@ class TierionHash:
     def __init__(self, name ,password):
         self.hashAuthEndpoint='https://hashapi.tierion.com/v1/auth/token'
         self.HashAuth=requests.post(self.hashAuthEndpoint,data = {'username':name,'password':password})
+        self.expires_at=datetime.datetime.now()+ datetime.timedelta(0,self.HashAuth.json()['expires_in'])
 
     def refresh(self):
         data=self.HashAuth.json()
         token=data['refresh_token']
         self.HashAuth=requests.post('https://hashapi.tierion.com/v1/auth/refresh', data={'refreshToken':token})
+        self.expires_at=datetime.datetime.now()+ datetime.timedelta(0,self.HashAuth.json()['expires_in'])
+
 
     def submitHashItem(self, item):
         try:
-            self.refresh()
+            if(self.expired_auth()):
+                self.refresh()
             hashedItem= hashlib.sha256(item.encode('utf-8')).hexdigest()
             data=self.HashAuth.json()
             token=data['access_token']
@@ -34,7 +39,8 @@ class TierionHash:
 
     def getReceipt(self, id_receipt):
         try:
-            self.refresh()
+            if(self.expired_auth()):
+                self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -48,7 +54,8 @@ class TierionHash:
 
     def getAllBlockSubscriptions(self):
         try:
-            self.refresh()
+            if(self.expired_auth()):
+                self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -59,7 +66,8 @@ class TierionHash:
 
     def getBlockSubscription(self, id):
         try:
-            self.refresh()
+            if(self.expired_auth()):
+                self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -70,7 +78,8 @@ class TierionHash:
 
     def createBlockSubscription(self,callback,newLabel):
         try:
-            self.refresh()
+            if(self.expired_auth()):
+                self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -81,7 +90,8 @@ class TierionHash:
 
     def updateBlockSubscription(self,id,callback,newLabel):
         try:
-            self.refresh()
+            if(self.expired_auth()):
+                self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -92,7 +102,8 @@ class TierionHash:
 
     def deleteBlockSubscription(self,id,callback,newLabel):
         try:
-            self.refresh()
+            if(self.expired_auth()):
+                self.refresh()
             data=self.HashAuth.json()
             token=data['access_token']
             headers = {'Authorization':"Bearer "+token}
@@ -102,10 +113,17 @@ class TierionHash:
             raise e
 
 
+    def expired_auth(self):
+        if(self.HashAuth.json()['access_token'] and self.HashAuth.json()['refresh_token'] and self.expires_at < datetime.datetime.now()):
+            return True
+        else:
+            return False
+
     def main(self):
         print(self.HashAuth.json())
         print(self.hashAuthEndpoint)
         self.refresh()
+        print(self.expired_auth())
         print(self.HashAuth.json())
         reciept=self.submitHashItem('test')
         print(reciept)
